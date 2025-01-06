@@ -23,19 +23,15 @@ const bookSchema = new Schema(
       required: true,
       min: 0, // Ensures valid year
     },
-    bookFile: {
-      type: String,
-      required: true, // URL or file path to the book file
-    },
     thumbnail: {
       type: String, // URL or file path to the thumbnail image
     },
-    availabilityStatus: {
-      type: Boolean,
-      default: true, // True means available, False means borrowed
-    },
+    quantity: {
+      type: Number,
+      default: 1
+    }
   },
   { timestamps: true }
 );
 
-export default mongoose.model('Book', bookSchema);
+export const Book = mongoose.model('Book', bookSchema);
