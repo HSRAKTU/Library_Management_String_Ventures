@@ -34,12 +34,10 @@ This repository contains the Library Management System project, a full-stack app
 ```
 Library-Management-System/
 ├── frontend/             # Frontend code
-│   ├── src/              # React components, pages, and styles
-│   ├── public/           # Static assets
+...
 │   └── README.md         # Frontend-specific documentation
 ├── backend/              # Backend code
-│   ├── src/              # Controllers, routes, and models
-│   ├── db/               # Database connection logic
+...
 │   └── README.md         # Backend-specific documentation
 └── README.md             # Overall project documentation
 ```
