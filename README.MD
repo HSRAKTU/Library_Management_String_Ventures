@@ -1,6 +1,6 @@
 # Library Management System
 
-This is a **full-stack project** designed to manage a library system, featuring both user and admin functionalities. The project is divided into two major parts:
+This repository contains the Library Management System project, a full-stack application built as an assignment for String Ventures' Full Stack Developer Intern role. The system offers both user and admin functionalities to manage library operations seamlessly. It is structured into two main parts:
 
 1. **Frontend**
    - Built using **React**, **Vite**, and **ShadCN UI**.
@@ -59,7 +59,7 @@ To set up the backend, refer to the `backend/README.md` file for detailed instal
 ## Rough UI Sketch
 Below is a rough sketch of the UI design for the application:
 
-![Rough UI Sketch](./backend/utils/rough_ui.png)
+![Rough UI Sketch](./backend/src/utils/rough_ui.png)
 
 ### Features Highlighted in the Sketch:
 - **Start-Up Page**:
