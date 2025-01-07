@@ -1,3 +1,4 @@
+// book.controller.js
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -19,7 +20,7 @@ const addBook = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Thumbnail file is required");
   }
 
-  // Access the in-memory file buffer instead of a local path
+  // Access the in-memory file buffer
   const fileBuffer = req.files.thumbnail[0].buffer;
   if (!fileBuffer) {
     throw new ApiError(400, "Thumbnail file is required");
