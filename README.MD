@@ -12,6 +12,7 @@ This repository contains the Library Management System project, a full-stack app
    - Exposes RESTful APIs for managing users, books, and transactions.
    - Integrates with **MongoDB** and **Cloudinary** for data storage and file uploads, respectively.
    - ***Detailed README.MD within backend folder.***
+3. Jump to API documentation: [Click here](https://github.com/HSRAKTU/Library_Management_String_Ventures/tree/main/backend#api-documentation)
 ---
 
 ## Features
