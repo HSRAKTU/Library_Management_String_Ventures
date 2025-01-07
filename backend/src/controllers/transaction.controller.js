@@ -143,6 +143,53 @@ const returnBook = asyncHandler(async (req, res) => {
     }
 })
 
+// const getUserTransactionHistory = asyncHandler(async (req, res) => {
+//     const userId = req.user._id;
+//     const { page = 1, limit = 10, includeReturned = true } = req.query; // Get 'returned' parameter
+
+//     if (!isValidObjectId(userId)) {
+//         throw new ApiError(400, "Invalid User Id");
+//     }
+
+//     const pipeline = [
+//         {
+//             $match: { userId: userId } // Match transactions for the user
+//         }
+//     ];
+
+//     // Filter by returned status
+//     if (includeReturned === 'false') {
+//         pipeline.push({
+//             $match: { returnDate: { $exists: false } } // Pending return books
+//         });
+//     }
+
+//     // Sort by borrowDate (newest first)
+//     pipeline.push({
+//         $sort: { borrowDate: -1 }
+//     });
+
+//     const options = {
+//         page: parseInt(page, 10),
+//         limit: parseInt(limit, 10),
+//     };
+
+//     try {
+//         const transactions = await Transaction.aggregatePaginate(Transaction.aggregate(pipeline), options);
+
+//         if (!transactions || transactions.totalDocs === 0) {
+//             return res.status(200).json(new ApiResponse(200, {transactions: [], ...transactions}, "No transactions found"));
+//         }
+
+//         return res
+//         .status(200)
+//         .json(new ApiResponse(200, transactions, "User transaction history fetched successfully"));
+//     } catch (error) {
+//         console.error("Error fetching user transaction history:", error);
+//         throw new ApiError(500, "Failed to fetch user transaction history"); // More informative error for server logs
+//     }
+// });
+
 const getUserTransactionHistory = asyncHandler(async (req, res) => {
     const userId = req.user._id;
     const { page = 1, limit = 10, includeReturned = true } = req.query; // Get 'returned' parameter
@@ -153,21 +200,37 @@ const getUserTransactionHistory = asyncHandler(async (req, res) => {
 
     const pipeline = [
         {
-            $match: { userId: userId } // Match transactions for the user
+            $match: { userId: new mongoose.Types.ObjectId(userId) } // Match transactions for the user
+        },
+        // Filter by returned status
+        ...(includeReturned === 'false'
+            ? [
+                  {
+                      $match: { returnDate: { $exists: false } } // Pending return books
+                  }
+              ]
+            : []),
+        // Lookup to join with the Book collection
+        {
+            $lookup: {
+                from: "books", // Collection name of the Book model
+                localField: "bookId", // Field in Transaction collection
+                foreignField: "_id", // Field in Book collection
+                as: "bookDetails" // Output array field name
+            }
+        },
+        // Unwind the bookDetails array to convert it into a single object
+        {
+            $unwind: {
+                path: "$bookDetails",
+                preserveNullAndEmptyArrays: true // If the book is deleted, keep the transaction with `null` bookDetails
+            }
+        },
+        // Sort by borrowDate (newest first)
+        {
+            $sort: { borrowDate: -1 }
         }
     ];
-
-    // Filter by returned status
-    if (includeReturned === 'false') {
-        pipeline.push({
-            $match: { returnDate: { $exists: false } } // Pending return books
-        });
-    }
-
-    // Sort by borrowDate (newest first)
-    pipeline.push({
-        $sort: { borrowDate: -1 }
-    });
 
     const options = {
         page: parseInt(page, 10),
@@ -178,17 +241,22 @@ const getUserTransactionHistory = asyncHandler(async (req, res) => {
         const transactions = await Transaction.aggregatePaginate(Transaction.aggregate(pipeline), options);
 
         if (!transactions || transactions.totalDocs === 0) {
-            return res.status(200).json(new ApiResponse(200, {transactions: [], ...transactions}, "No transactions found"));
+            return res.status(200).json(
+                new ApiResponse(200, { transactions: [], ...transactions }, "No transactions found")
+            );
         }
 
         return res
-        .status(200)
-        .json(new ApiResponse(200, transactions, "User transaction history fetched successfully"));
+            .status(200)
+            .json(
+                new ApiResponse(200, transactions, "User transaction history fetched successfully")
+            );
     } catch (error) {
         console.error("Error fetching user transaction history:", error);
         throw new ApiError(500, "Failed to fetch user transaction history"); // More informative error for server logs
     }
 });
+
 
 export {
     borrowBook,

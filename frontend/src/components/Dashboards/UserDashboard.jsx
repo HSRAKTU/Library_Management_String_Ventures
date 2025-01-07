@@ -14,22 +14,26 @@ export default function UserDashboard() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBorrowed, setTotalBorrowed] = useState(0);
+  const [includeReturned, setIncludeReturned] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const { toast } = useToast();
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetchBorrowedBooks();
-  }, [currentPage]);
+  }, [currentPage, includeReturned]);
 
   const fetchBorrowedBooks = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`/api/v1/transaction/history`, {
+        params: {
+          includeReturned,
+          page: currentPage,
+        },
         withCredentials: true,
       });
       console.log(response)
@@ -44,15 +48,10 @@ export default function UserDashboard() {
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setCurrentPage(1);
-    fetchBorrowedBooks();
-  };
-
   const handleReturn = async (bookId) => {
     try {
-      await axios.post(`/api/v1/transaction/return`, { bookId }, { withCredentials: true });
+      console.log("BookId:", bookId)
+      await axios.patch(`/api/v1/transaction/return`, { bookId }, { withCredentials: true });
       toast({
         title: "Success",
         description: "Book returned successfully",
@@ -61,7 +60,7 @@ export default function UserDashboard() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to return the book. Please try again.",
+        description: "Failed to return the transaction. Please try again.",
         variant: "destructive",
       });
     }
@@ -69,7 +68,7 @@ export default function UserDashboard() {
 
   const handleReBorrow = async (bookId) => {
     try {
-      //await axios.post(`/api/v1/transaction/reborrow`, { bookId }, { withCredentials: true });
+      await axios.post(`/api/v1/transaction/borrow`, { bookId }, { withCredentials: true });
       toast({
         title: "Success",
         description: "Book re-borrowed successfully",
@@ -78,7 +77,7 @@ export default function UserDashboard() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to re-borrow the book. Please try again.",
+        description: "Failed to re-borrow the transaction. Please try again.",
         variant: "destructive",
       });
     }
@@ -98,57 +97,79 @@ export default function UserDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in">
-      <h1 className="text-4xl font-bold mb-8 text-center">
-          <BookOpen className="inline-block mr-2 mb-1" />
+      <Tabs defaultValue="yourBooks">
+        <TabsContent value="yourBooks">
+          <h1 className="text-4xl font-bold mb-8 text-center">
+            <BookOpen className="inline-block mr-2 mb-1" />
             Your Borrowed Books
           </h1>
 
-          <div className="flex gap-4 mb-8">
-            <form onSubmit={handleSearch} className="flex-grow flex gap-2">
-              <Input
-                type="text"
-                placeholder="Search your books..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-grow"
-              />
-              <Button type="submit">
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
-            </form>
+          <div className="flex justify-end mb-8">
+            <Button
+              variant={includeReturned ? "default" : "outline"}
+              onClick={() => {
+                setIncludeReturned(!includeReturned);
+                setCurrentPage(1);
+              }}
+            >
+              {includeReturned ? "Hide Returned" : "Show All"}
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {books.map((book, index) => (
+            {books.map((transaction, index) => (
               <Card
-                key={book._id}
+                key={transaction._id}
                 className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 animate-fade-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <CardHeader className="p-0">
                   <div className="aspect-w-2 aspect-h-3 w-full overflow-hidden">
                     <img
-                      src={book.thumbnail}
-                      alt={book.title}
+                      src={transaction.bookDetails.thumbnail}
+                      alt={transaction.bookDetails.title}
                       className="object-cover object-center w-full h-full transition-transform duration-300 ease-in-out hover:scale-105"
                     />
                   </div>
                 </CardHeader>
                 <CardContent className="flex-grow p-4">
                   <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
-                    {book.title}
+                    {transaction.bookDetails.title}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground mb-2">by {book.author}</p>
-                  <p className="text-sm line-clamp-3">{book.description}</p>
+                  <p className="text-sm text-muted-foreground mb-2">by {transaction.bookDetails.author}</p>
+                  <p className="text-sm line-clamp-3">{transaction.bookDetails.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                  <span className='font-bold'>Borrow Date</span>:{" "}
+                  {transaction.borrowDate
+                    ? new Date(transaction.borrowDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "N/A"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <span className='font-bold'>Return Date</span>:{" "}
+                  {transaction.returnDate
+                    ? new Date(transaction.returnDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "Not returned yet"}
+                </p>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center p-4 bg-muted/50">
-                  <Button variant="outline" onClick={() => handleReturn(book._id)}>
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Return
-                  </Button>
-                  <Button variant="outline" onClick={() => handleReBorrow(book._id)}>
-                    <RefreshCw className="mr-2 h-4 w-4" /> Re-Borrow
-                  </Button>
+                  {!transaction.returnDate ? (
+                    <Button variant="outline" onClick={() => handleReturn(transaction.bookId)}>
+                      <ArrowLeft className="mr-2 h-4 w-4" /> Return
+                    </Button>
+                  ) : (
+                    <Button variant="outline" onClick={() => handleReBorrow(transaction._id)}>
+                      <RefreshCw className="mr-2 h-4 w-4" /> Re-Borrow
+                    </Button>
+                  )}
+                  
                 </CardFooter>
               </Card>
             ))}
@@ -160,11 +181,8 @@ export default function UserDashboard() {
             totalPages={totalPages}
             onPageChange={setCurrentPage}
           />
-
-          <div className="mt-8 p-4 bg-muted rounded-lg">
-            <h2 className="text-2xl font-semibold mb-2">Stats</h2>
-            <p>Total books borrowed: {totalBorrowed}</p>
-          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

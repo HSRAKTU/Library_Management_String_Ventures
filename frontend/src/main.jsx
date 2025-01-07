@@ -15,6 +15,7 @@ import SignupForm from './components/auth/SignupForm';
 import LoginForm from './components/auth/LoginForm';
 import { checkAuthSession } from './lib/redux/features/authSlice'
 import { ThemeProvider } from "@/components/theme-provider"
+import { LoaderCircle } from 'lucide-react'
  
 const router = createBrowserRouter([
   {
@@ -60,9 +61,10 @@ export default function AppWrapper() {
   useEffect(() => {
     dispatch(checkAuthSession());
   }, [dispatch]);
+  
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div><LoaderCircle className='animate-spin'/></div>;
   }
 
   return <RouterProvider router={router} />;

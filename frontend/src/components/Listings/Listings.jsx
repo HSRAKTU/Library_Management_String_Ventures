@@ -195,9 +195,9 @@ function BookCard({ book }) {
       </CardFooter>
       {book.quantity > 0 && (
         <>
-          <Button className="m-4" variant="outline" onClick={handleBorrowClick}>
+         {user.role === 'admin' ? ' ': (<Button className="m-4" variant="outline" onClick={handleBorrowClick}>
             Borrow
-          </Button>
+          </Button>)}
           
           {isAuthenticated && user.role === 'user' && (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>

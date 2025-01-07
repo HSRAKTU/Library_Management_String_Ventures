@@ -95,7 +95,7 @@ export default function Header() {
                         {isAuthenticated && (
                             <NavigationMenuItem>
                                 <NavMenuLink to={user.role === "admin" ? "/admin" : "/user"}>
-                                    Dashboard
+                                    {user.role === "user" ? 'Your Book History' : 'Dashboard'}
                                 </NavMenuLink>
                             </NavigationMenuItem>
                         )}
