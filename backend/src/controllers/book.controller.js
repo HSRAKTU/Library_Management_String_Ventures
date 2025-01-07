@@ -64,68 +64,142 @@ const getBookById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, book, "Book fetched successfully"));
 });
 
+// const getAllBooks = asyncHandler(async (req, res) => {
+//     const { page = 1, limit = 10, query, available } = req.query;
+//     const pipeline = [];
+
+//     if (available === 'true') {
+//         pipeline.push({
+//             $match: { quantity: { $gt: 0 } }
+//         });
+//     }
+
+//     if (query) {
+//         pipeline.push({
+//             $search: {
+//                 index: "books_index",
+//                 text: {
+//                     query: query,
+//                     path: ["title", "author", "description"],
+//                     fuzzy: {
+//                         maxEdits: 2,
+//                         prefixLength: 3
+//                     }
+//                 }
+//             }
+//         });
+
+//         pipeline.push({
+//             $project: {
+//                 _id: 1,
+//                 title: 1,
+//                 author: 1,
+//                 description: 1,
+//                 publicationYear: 1,
+//                 thumbnail: 1,
+//                 quantity: 1,
+//                 createdAt: 1,
+//                 updatedAt: 1,
+//                 score: { $meta: "searchScore" },
+//             }
+//         });
+
+//         pipeline.push({
+//             $sort: {
+//                 score: { $meta: "searchScore" }
+//             }
+//         });
+//     }
+
+//     const options = {
+//         page: parseInt(page, 10),
+//         limit: parseInt(limit, 10),
+//     };
+
+//     const books = await Book.aggregatePaginate(Book.aggregate(pipeline), options);
+
+//     if (!books || books.totalDocs === 0) {
+//         return res.status(200).json(new ApiResponse(200, { books: [], ...books }, "No books found"));
+//     }
+
+//     return res.status(200).json(new ApiResponse(200, books, "Books fetched successfully"));
+// });
+
 const getAllBooks = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, available } = req.query;
     const pipeline = [];
-    
-    if (available === 'true') {
-        pipeline.push({
-            $match: { quantity: { $gt: 0 } }
-        });
-    }
-
+  
+    // Add the $search stage for Atlas Search
     if (query) {
-        pipeline.push({
-            $search: {
-                index: "books",
-                text: {
-                    query: query,
-                    path: ["title", "author", "description"],
-                    fuzzy: {
-                        maxEdits: 2,
-                        prefixLength: 3
-                    }
-                }
+      pipeline.push({
+        $search: {
+          index: "books_index", // Make sure this matches your Atlas Search index name
+          text: {
+            query: query,
+            path: ["title", "author", "description"], // Fields included in the index
+            fuzzy: {
+              maxEdits: 2,
+              prefixLength: 3,
             }
-        });
-
-        pipeline.push({
-            $project: {
-                _id: 1,
-                title: 1,
-                author: 1,
-                description: 1,
-                publicationYear: 1,
-                thumbnail: 1,
-                quantity: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                score: { $meta: "searchScore" },
-            }
-        });
-
-        pipeline.push({
-            $sort: {
-                score: { $meta: "searchScore" }
-            }
-        });
+          }
+        }
+      });
+  
+      // Add a $project stage to include the search score
+      pipeline.push({
+        $project: {
+          _id: 1,
+          title: 1,
+          author: 1,
+          description: 1,
+          publicationYear: 1,
+          thumbnail: 1,
+          quantity: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          score: { $meta: "searchScore" } // Add the search score as a computed field
+        }
+      });
+  
+      // Sort using the computed `score` field
+      pipeline.push({
+        $sort: {
+          score: -1, // Sort by the computed `score` field in descending order
+          _id: 1,    // Use _id as a tiebreaker (optional)
+        }
+      });
     }
-
-    const options = {
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10),
-    };
-
-    const books = await Book.aggregatePaginate(Book.aggregate(pipeline), options);
-
-    if (!books || books.totalDocs === 0) {
-        return res.status(200).json(new ApiResponse(200, { books: [], ...books }, "No books found"));
+  
+    // Filter for available books if specified
+    if (available === 'true') {
+      pipeline.push({
+        $match: {
+          quantity: { $gt: 0 }
+        }
+      });
     }
-
-    return res.status(200).json(new ApiResponse(200, books, "Books fetched successfully"));
-});
-
-
+  
+    // Pagination: Skip and limit
+    pipeline.push({ $skip: (page - 1) * limit });
+    pipeline.push({ $limit: parseInt(limit, 10) });
+  
+    try {
+      const books = await Book.aggregate(pipeline); // Run the aggregation pipeline
+      const totalDocs = await Book.countDocuments(); // Get total document count
+  
+      return res.status(200).json(
+        new ApiResponse(200, {
+          docs: books,
+          totalPages: Math.ceil(totalDocs / limit),
+          currentPage: parseInt(page, 10),
+        }, "Books fetched successfully")
+      );
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      throw new ApiError(500, "Failed to fetch books");
+    }
+  });
+  
 const updateBook = asyncHandler(async (req, res) => {
     const { bookId } = req.params;
     const { title, author, description, publicationYear, quantity } = req.body;
