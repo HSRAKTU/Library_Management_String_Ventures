@@ -5,12 +5,13 @@ This repository contains the Library Management System project, a full-stack app
 1. **Frontend**
    - Built using **React**, **Vite**, and **ShadCN UI**.
    - Provides a ***responsive UI*** for users and admins to interact with the library system.
+   - ***Detailed README.MD within frontend folder.***
 
 2. **Backend**
    - Built using **Node.js** and **Express.js**.
    - Exposes RESTful APIs for managing users, books, and transactions.
    - Integrates with **MongoDB** and **Cloudinary** for data storage and file uploads, respectively.
-
+   - ***Detailed README.MD within backend folder.***
 ---
 
 ## Features
