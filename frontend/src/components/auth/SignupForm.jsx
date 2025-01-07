@@ -53,7 +53,7 @@ export default function SignupForm() {
 
       navigate("/login")
     } catch (error) {
-      console.error("Error in signup:", error)
+      // console.error("Error in signup:", error)
       toast({
         title: "Signup failed",
         description: "An error occurred during signup. Please try again.",

@@ -72,7 +72,7 @@ export default function AdminDashboard() {
       setTotalBooks(response.data.data.totalDocs);
     } catch (err) {
       setError('Failed to fetch books. Please try again later.');
-      console.error('Error fetching books:', err);
+      // console.error('Error fetching books:', err);
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
   const getAdminDashboard = async () => {
     try {
       const response = await axios.get(`/api/v1/book/getStats`,{withCredentials: true})
-      console.log(response.data)
+      // console.log(response.data)
       setStats(response.data.data)
     } catch (error) {
       toast({
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
       });
       fetchBooks();
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       toast({
         title: "Error",
         description: error.response.data.message,

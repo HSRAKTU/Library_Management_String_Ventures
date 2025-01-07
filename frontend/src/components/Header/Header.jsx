@@ -67,7 +67,7 @@ export default function Header() {
             
             navigate("/");
         } catch (error) {
-            console.error("Logout failed:", error);
+            // console.error("Logout failed:", error);
             toast({
                 title: "Logout failed",
                 description: "Something went wrong while logging out. Please try again.",

@@ -46,7 +46,7 @@ export default function Listings() {
       setTotalPages(response.data.data.totalPages);
     } catch (err) {
       setError('Failed to fetch books. Please try again later.');
-      console.error('Error fetching books:', err);
+      // console.error('Error fetching books:', err);
     } finally {
       setLoading(false);
     }

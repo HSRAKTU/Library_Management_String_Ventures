@@ -36,13 +36,13 @@ export default function UserDashboard() {
         },
         withCredentials: true,
       });
-      console.log(response)
+      // console.log(response)
       setBooks(response.data.data.docs);
       setTotalPages(response.data.data.totalPages);
       setTotalBorrowed(response.data.data.totalDocs);
     } catch (err) {
       setError('Failed to fetch borrowed books. Please try again later.');
-      console.error('Error fetching borrowed books:', err);
+      .error('Error fetching borrowed books:', err);
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export default function UserDashboard() {
 
   const handleReturn = async (bookId) => {
     try {
-      console.log("BookId:", bookId)
+      // console.log("BookId:", bookId)
       await axios.patch(`/api/v1/transaction/return`, { bookId }, { withCredentials: true });
       toast({
         title: "Success",

@@ -19,13 +19,20 @@ import {
 } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { setCredentials } from "@/lib/redux/features/authSlice"
+import { Navigate, useLocation } from "react-router-dom"
 
 export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { toast } = useToast()
-  
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const location = useLocation()
+  if (isAuthenticated) {
+    // console.log("location:", location)
+    return <Navigate to={location?.state?.from?.pathname??"/"} replace />
+  }
+
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -46,11 +53,11 @@ export default function LoginForm() {
         title: "Success!",
         description: response.data.message,
       })
-      console.log(response)
+      // console.log(response)
       dispatch(setCredentials(response.data.data.user))
       navigate("/")
     } catch (error) {
-      console.error("Error in login:", error)
+      // console.error("Error in login:", error)
       toast({
         title: "Uh oh! Login failed",
         description: "Please check your credentials and try again.",
