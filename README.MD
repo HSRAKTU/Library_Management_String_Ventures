@@ -22,7 +22,7 @@ This repository contains the Library Management System project, a full-stack app
   - Search books by title or author.
   - Filter books by availability.
 - **Dashboard Statistics**:
-  - Admins can view statistics such as total books, borrowed books, and new arrivals.
+  - Admins can view statistics such as total books, borrowed books, and available books.
 - **File Uploads**:
   - Secure thumbnail uploads using **Cloudinary**.
 - **Scalable Backend**:
