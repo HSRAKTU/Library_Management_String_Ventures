@@ -65,8 +65,14 @@ const getBookById = asyncHandler(async (req, res) => {
 });
 
 const getAllBooks = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query } = req.query;
+    const { page = 1, limit = 10, query, available } = req.query;
     const pipeline = [];
+    
+    if (available === 'true') {
+        pipeline.push({
+            $match: { quantity: { $gt: 0 } }
+        });
+    }
 
     if (query) {
         pipeline.push({
@@ -127,7 +133,9 @@ const updateBook = asyncHandler(async (req, res) => {
     if (!bookId) {
         throw new ApiError(400, "Book ID is required");
     }
-
+    if(!isValidObjectId(bookId)){
+        throw new ApiError(400, "Invalid BookId")
+    }
     const book = await Book.findById(bookId);
 
     if (!book) {
@@ -172,7 +180,9 @@ const deleteBook = asyncHandler(async (req, res) => {
     if (!bookId) {
         throw new ApiError(400, "Book ID is required");
     }
-
+    if(!isValidObjectId(bookId)){
+        throw new ApiError(400, "Invalid BookId")
+    }
     const deletedBook = await Book.findByIdAndDelete(bookId);
 
     if (!deletedBook) {

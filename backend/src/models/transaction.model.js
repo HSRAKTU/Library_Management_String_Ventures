@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 const transactionSchema = new Schema({
   bookId: {
@@ -11,16 +12,16 @@ const transactionSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  transactionType: {
-    type: String,
-    enum: ['borrow','return'],
+  borrowDate: {
+    type: Date,
+    default: Date.now,
     required: true
   },
-  transactionDate: {
-    type: Date,
-    required: true,
-    default: Date.now,
+  returnDate: {
+    type: Date
   }
 }, { timestamps: true });
 
-export default mongoose.model('Transaction', transactionSchema);
+transactionSchema.plugin(mongooseAggregatePaginate)
+
+export const Transaction =  mongoose.model('Transaction', transactionSchema);
