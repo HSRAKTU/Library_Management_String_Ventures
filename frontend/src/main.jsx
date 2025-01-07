@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster"
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Listings from './components/Listings/Listings';
-import AdminDashboard from './components/Dashboards/adminDashboard';
-import UserDashboard from './components/Dashboards/userDashboard';
+import AdminDashboard from './components/Dashboards/AdminDashboard';
+import UserDashboard from './components/Dashboards/UserDashboard';
 import Layout from './Layout';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { store } from './lib/redux/store';
