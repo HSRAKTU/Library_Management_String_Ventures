@@ -52,10 +52,7 @@ export default function AdminDashboard() {
     thumbnail: null,
   });
 
-  useEffect(() => {
-    fetchBooks();
-    getAdminDashboard();
-  }, [currentPage,setBooks]);
+  
 
   const fetchBooks = async () => {
     setLoading(true);
@@ -67,6 +64,7 @@ export default function AdminDashboard() {
         },
         withCredentials: true,
       });
+      getAdminDashboard();
       setBooks(response.data.data.docs);
       setTotalPages(response.data.data.totalPages);
       setTotalBooks(response.data.data.totalDocs);
@@ -86,6 +84,7 @@ export default function AdminDashboard() {
         description: "Book deleted successfully",
       });
       fetchBooks();
+      getAdminDashboard();
     } catch (error) {
       toast({
         title: "Error",
@@ -188,6 +187,11 @@ export default function AdminDashboard() {
       });
     }
   };
+
+  useEffect(() => {
+    fetchBooks();
+    getAdminDashboard();
+  }, [currentPage,setBooks,setStats, setNewBook, setUpdateBook]);
 
   if (loading) {
     return (

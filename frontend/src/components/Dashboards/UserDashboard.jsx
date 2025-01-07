@@ -42,7 +42,7 @@ export default function UserDashboard() {
       setTotalBorrowed(response.data.data.totalDocs);
     } catch (err) {
       setError('Failed to fetch borrowed books. Please try again later.');
-      .error('Error fetching borrowed books:', err);
+      console.error('Error fetching borrowed books:', err);
     } finally {
       setLoading(false);
     }

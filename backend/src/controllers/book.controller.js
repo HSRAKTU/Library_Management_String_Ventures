@@ -167,7 +167,7 @@ const getAllBooks = asyncHandler(async (req, res) => {
       // Sort using the computed `score` field
       pipeline.push({
         $sort: {
-          score: -1, // Sort by the computed `score` field in descending order
+          score: -1, 
           _id: 1,    // Use _id as a tiebreaker (optional)
         }
       });
@@ -181,7 +181,11 @@ const getAllBooks = asyncHandler(async (req, res) => {
         }
       });
     }
-  
+    pipeline.push({
+        $sort: {
+          createdAt: -1 // Ensure the latest book appears first
+        }
+      });
     // Pagination: Skip and limit
     pipeline.push({ $skip: (page - 1) * limit });
     pipeline.push({ $limit: parseInt(limit, 10) });
