@@ -64,7 +64,7 @@ export default function AppWrapper() {
   
 
   if (loading) {
-    return <div><LoaderCircle className='animate-spin'/></div>;
+    return <div  className="flex items-center justify-center h-screen w-screen" ><LoaderCircle size={128} className='animate-spin'/></div>;
   }
 
   return <RouterProvider router={router} />;
