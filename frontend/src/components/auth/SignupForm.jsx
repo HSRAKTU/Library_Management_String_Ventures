@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+
 import { useNavigate, Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -18,15 +18,15 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
-import { setCredentials } from "@/lib/redux/features/authSlice"
 
-const API_URL = "http://your-api-url.com" // Replace with your actual API URL
 
 export default function SignupForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const dispatch = useDispatch()
   const navigate = useNavigate()
   const { toast } = useToast()
+
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false)
+  const [usernameMessage, setUsernameMessage] = useState({ className: '', text: '' })
 
   const form = useForm({
     resolver: zodResolver(signupSchema),
@@ -42,7 +42,7 @@ export default function SignupForm() {
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     try {
-      const response = await axios.post(`${API_URL}/api/v1/user/register`, data, {
+      const response = await axios.post(`api/v1/user/register`, data, {
         withCredentials: true,
       })
 
@@ -51,7 +51,6 @@ export default function SignupForm() {
         description: response.data.message,
       })
 
-      dispatch(setCredentials(response.data.data))
       navigate("/login")
     } catch (error) {
       console.error("Error in signup:", error)
@@ -64,6 +63,31 @@ export default function SignupForm() {
       setIsSubmitting(false)
     }
   }
+
+  useEffect(() => {
+    const checkUsernameAvailability = async () => {
+      const username = form.getValues('username')
+      if (username && username.length > 2) {
+        setIsCheckingUsername(true)
+        setUsernameMessage({ className: '', text: '' })
+        
+        try {
+          const response = await axios.get(`api/v1/user/checkUsername?username=${username}`, {
+            withCredentials: true,
+          })
+          setUsernameMessage({ className: 'text-green-500', text: response.data.message })
+        } catch (error) {
+          setUsernameMessage({ className: 'text-red-500', text: 'Username not available' })
+        } finally {
+          setIsCheckingUsername(false)
+        }
+      }
+    }
+
+    // Debounce the username check to avoid too many API calls
+    const timeoutId = setTimeout(checkUsernameAvailability, 500)
+    return () => clearTimeout(timeoutId)
+  }, [form.watch('username')])
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-background">
@@ -83,6 +107,12 @@ export default function SignupForm() {
                   <FormControl>
                     <Input placeholder="Choose a username" {...field} />
                   </FormControl>
+                  {isCheckingUsername && <p className="text-sm">Checking availability...</p>}
+                  {usernameMessage.text && (
+                    <p className={`text-sm ${usernameMessage.className}`}>
+                      {usernameMessage.text}
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

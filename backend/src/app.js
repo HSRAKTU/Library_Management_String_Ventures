@@ -19,8 +19,12 @@ app.use(cookieParser());
 import userRouter from "./routes/user.routes.js";
 import bookRouter from "./routes/book.routes.js";
 import transactionRouter from './routes/transaction.routes.js'
+import { errorHandler } from './middlewares/errorHandler.middleware.js';
 //routes declaration
 app.use("/api/v1/user",userRouter);
 app.use("/api/v1/book",bookRouter);
 app.use("/api/v1/transaction",transactionRouter);
+
+app.use(errorHandler);
+
 export { app };

@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { Toaster } from "@/components/ui/toaster"
@@ -8,12 +8,14 @@ import Listings from './components/Listings/Listings';
 import AdminDashboard from './components/Dashboards/adminDashboard';
 import UserDashboard from './components/Dashboards/userDashboard';
 import Layout from './Layout';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { store } from './lib/redux/store';
 import ProtectedRoute from './ProtectedRoute';
 import SignupForm from './components/auth/SignupForm';
 import LoginForm from './components/auth/LoginForm';
-
+import { checkAuthSession } from './lib/redux/features/authSlice'
+import { ThemeProvider } from "@/components/theme-provider"
+ 
 const router = createBrowserRouter([
   {
     path: "/",
@@ -51,11 +53,30 @@ const router = createBrowserRouter([
   },
 ]);
 
+export default function AppWrapper() {
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(checkAuthSession());
+  }, [dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return <RouterProvider router={router} />;
+}
+
+// Re
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router}/>
+     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <AppWrapper />
       <Toaster />
+     </ThemeProvider>
     </Provider>
   </StrictMode>
 )
