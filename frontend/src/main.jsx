@@ -46,18 +46,18 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <LoginForm />, // Independent Login page
+    element: <LoginForm />,
   },
   {
     path: "/signup",
-    element: <SignupForm />, // Independent Signup page
+    element: <SignupForm />,
   },
 ]);
 
 export default function AppWrapper() {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.auth);
-
+  
   useEffect(() => {
     dispatch(checkAuthSession());
   }, [dispatch]);

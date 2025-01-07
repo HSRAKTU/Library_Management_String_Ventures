@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addBook, deleteBook, getAllBooks, getBookById, updateBook } from "../controllers/book.controller.js";
+import { addBook, deleteBook, getAdminDashboard, getAllBooks, getBookById, updateBook } from "../controllers/book.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { verifyAdmin } from "../middlewares/adminCheck.middleware.js";
 import {upload} from "../middlewares/multer.middleware.js"
@@ -29,7 +29,7 @@ router.route("/update/:bookId").patch(verifyJWT,verifyAdmin,
     updateBook)
 
 router.route("/delete/:bookId").delete(verifyJWT,verifyAdmin,deleteBook)
-
+router.route("/getStats").get(verifyJWT,verifyAdmin,getAdminDashboard)
 
 
 export default router;

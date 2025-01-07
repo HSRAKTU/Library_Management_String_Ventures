@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { Book } from '../models/book.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { isValidObjectId } from 'mongoose';
+import { Transaction } from '../models/transaction.model.js';
 
 /* 
     Add, Update, Read, Delete
@@ -11,7 +12,9 @@ import { isValidObjectId } from 'mongoose';
 
 const addBook = asyncHandler(async (req, res) => {
     const {title, author, description, publicationYear,quantity} = req.body;
-
+    if (!req.files || !req.files.thumbnail) {
+        throw new ApiError(400, "Thumbnail file is required");
+    }
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
 
     if(!thumbnailLocalPath){
@@ -268,11 +271,40 @@ const deleteBook = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { deletedBook }, "Book deleted successfully"));
 });
 
+const getAdminDashboard = asyncHandler(async (req, res) => {
+    try {
+      const totalBooks = await Book.countDocuments();
+      const currentlyBorrowedBooks = await Transaction.countDocuments({
+        returnDate: { $exists: false },
+      });
+      const totalAvailableBooks = await Book.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalQuantity: { $sum: "$quantity" },
+          },
+        },
+      ]);
+  
+      const totalAvailable = totalAvailableBooks.length > 0 ? totalAvailableBooks[0].totalQuantity : 0;
+      const statistics = {
+        totalBooks,
+        currentlyBorrowedBooks,
+        totalAvailableBooks: totalAvailable,
+      };
+  
+      return res.status(200).json(new ApiResponse(200, statistics, "Dashboard statistics fetched successfully"));
+    } catch (error) {
+      console.error("Error fetching dashboard statistics:", error);
+      throw new ApiError(500, "Failed to fetch dashboard statistics");
+    }
+  });
 
 export {
     addBook,
     getBookById,
     getAllBooks,
     updateBook,
-    deleteBook
+    deleteBook,
+    getAdminDashboard
 }

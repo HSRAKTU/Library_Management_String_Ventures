@@ -25,7 +25,6 @@ export default function LoginForm() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { toast } = useToast()
-
   
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -34,7 +33,7 @@ export default function LoginForm() {
       password: "",
     },
   })
-  
+
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     try {

@@ -23,6 +23,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 import axios from 'axios'
 import { logout } from '@/lib/redux/features/authSlice'
 import { useToast } from '@/hooks/use-toast'
+import { Library } from 'lucide-react'
 
 const NavMenuLink = React.forwardRef(({ to, children, ...props }, ref) => {
   const location = useLocation()
@@ -79,11 +80,7 @@ export default function Header() {
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center">
                 <Link to="/" className="flex items-center mr-6">
-                    <img
-                        src="https://alexharkness.com/wp-content/uploads/2020/06/logo-2.png"
-                        className="h-8 w-auto"
-                        alt="Logo"
-                    />
+                    <Library className="h-8 ml-8 w-auto" size = {64}/>
                 </Link>
                 <NavigationMenu className="hidden md:flex mx-6">
                     <NavigationMenuList className="space-x-4">
