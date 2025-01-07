@@ -10,14 +10,15 @@ const router = Router();
 router.route("/getAll").get(getAllBooks)
 router.route("/getById/:bookId").get(getBookById)
 //secured routes
-router.route("/add").post(verifyJWT,verifyAdmin,
+router.route("/add").post(
+    verifyJWT,
+    verifyAdmin,
     upload.fields([
-        {
-            name: "thumbnail",
-            maxCount: 1
-        }
+      { name: "thumbnail", maxCount: 1 },
     ]),
-    addBook)
+    addBook
+  );
+  
 
 router.route("/update/:bookId").patch(verifyJWT,verifyAdmin,
     upload.fields([
