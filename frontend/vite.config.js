@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server:{
     proxy:{
-      '/api': 'https://librarymanagementbackend.vercel.app'
+      '/api': 'https://library-management-string-ventures-mryt.vercel.app'
     },
   },
   resolve: {
