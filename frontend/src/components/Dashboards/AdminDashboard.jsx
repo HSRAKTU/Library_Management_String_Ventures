@@ -145,7 +145,7 @@ export default function AdminDashboard() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update the book. Please try again.",
+        description: error.response.data.message,
         variant: "destructive",
       });
     }

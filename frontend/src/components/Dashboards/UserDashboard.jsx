@@ -60,7 +60,7 @@ export default function UserDashboard() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to return the transaction. Please try again.",
+        description: error.response.data.message,
         variant: "destructive",
       });
     }
@@ -77,7 +77,7 @@ export default function UserDashboard() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to re-borrow the transaction. Please try again.",
+        description: error.response.data.message,
         variant: "destructive",
       });
     }

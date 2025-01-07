@@ -70,7 +70,7 @@ export default function Header() {
             // console.error("Logout failed:", error);
             toast({
                 title: "Logout failed",
-                description: "Something went wrong while logging out. Please try again.",
+                description: error.response.data.message,
                 variant: "destructive",
             });
         }

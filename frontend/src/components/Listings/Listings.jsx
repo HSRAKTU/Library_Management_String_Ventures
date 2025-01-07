@@ -146,7 +146,7 @@ function BookCard({ book }) {
       //console.log(error.response.data)
       toast({
         title: error.response.data?.message,
-        description: "Failed to borrow the book.",
+        description: error.response.data.message,
         variant: "destructive",
       });
     }

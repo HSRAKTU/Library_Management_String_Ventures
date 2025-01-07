@@ -56,7 +56,7 @@ export default function SignupForm() {
       // console.error("Error in signup:", error)
       toast({
         title: "Signup failed",
-        description: "An error occurred during signup. Please try again.",
+        description: error.response.data.message,
         variant: "destructive",
       })
     } finally {
