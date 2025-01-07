@@ -183,13 +183,6 @@ This backend is deployed on **Vercel**. Follow these steps to deploy:
 
 ---
 
-## Future Improvements
-- Add validation for inputs using a library like **Joi** or **Zod**.
-- Implement logging using **Winston** or **Pino**.
-- Add testing using **Jest** or **Mocha**.
-
----
-
 ## License
 This project is licensed under the ISC License.
 
