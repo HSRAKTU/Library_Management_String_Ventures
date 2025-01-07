@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://librarymanagementbackend.vercel.app/api/$1"
+      "destination": "https://library-management-string-ventures-mryt.vercel.app/api/$1"
     },
     {
       "source": "/(.*)",
