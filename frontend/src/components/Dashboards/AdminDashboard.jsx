@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pagination } from "@/components/ui/pagination";
-import { Loader2, BookOpen, Pencil, Trash, PlusCircle } from 'lucide-react';
+import { Loader2, BookOpen, Pencil, Trash, PlusCircle, LoaderCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -33,6 +33,10 @@ export default function AdminDashboard() {
     currentlyBorrowedBooks: 0,
     totalAvailableBooks: 0
   })
+
+  const [loadAdd, setLoadAdd] = useState(false)
+  const [loadUpdate, setLoadUpdate] = useState(false)
+  const [loadDelete, setLoadDelete] = useState(false)
 
   const [newBook, setNewBook] = useState({
     title: '',
@@ -78,6 +82,7 @@ export default function AdminDashboard() {
 
   const handleDelete = async (bookId) => {
     try {
+      setLoadDelete(true)
       await axios.delete(`/api/v1/book/delete/${bookId}`, { withCredentials: true });
       toast({
         title: "Success",
@@ -91,6 +96,8 @@ export default function AdminDashboard() {
         description: error.response.data.message,
         variant: "destructive",
       });
+    } finally{
+      setLoadDelete(false)
     }
   };
 
@@ -124,6 +131,7 @@ export default function AdminDashboard() {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoadUpdate(true)
       const formData = new FormData();
       for (const key in updateBook) {
         if (key !== '_id') {
@@ -148,26 +156,29 @@ export default function AdminDashboard() {
         description: error.response.data.message,
         variant: "destructive",
       });
+    } finally{
+      setLoadUpdate(false)
     }
   };
 
   const handleAddBook = async (e) => {
     e.preventDefault();
     try {
+      setLoadAdd(true)
       const formData = new FormData();
-      for (const key in newBook) {
-        formData.append(key, newBook[key]);
-      }
-      await axios.post('/api/v1/book/add', formData, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      toast({
-        title: "Success",
-        description: "Book added successfully",
-      });
+        for (const key in newBook) {
+          formData.append(key, newBook[key]);
+        }
+        await axios.post('/api/v1/book/add', formData, {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        toast({
+          title: "Success",
+          description: "Book added successfully",
+        });
       setIsAddBookOpen(false);
       setNewBook({
         title: '',
@@ -185,6 +196,8 @@ export default function AdminDashboard() {
         description: error.response.data.message,
         variant: "destructive",
       });
+    }finally{
+      setLoadAdd(false)
     }
   };
 
@@ -303,7 +316,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button type="submit">Save changes</Button>
+                        <Button type="submit" disabled={loadAdd}>{loadAdd? <LoaderCircle className="animate-spin"/>: 'Save changes'}</Button>
                       </DialogFooter>
                     </form>
                   </DialogContent>
@@ -340,12 +353,32 @@ export default function AdminDashboard() {
                       </p>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center p-4 bg-muted/50">
-                      <Button variant="outline" onClick={() => handleUpdate(book)}>
-                        <Pencil className="mr-2 h-4 w-4" /> Update
-                      </Button>
-                      <Button variant="outline" onClick={() => handleDelete(book._id)}>
-                        <Trash className="mr-2 h-4 w-4" /> Delete
-                      </Button>
+                    <Button 
+                      variant="outline" 
+                      disabled={loadUpdate} 
+                      onClick={() => handleUpdate(book)}
+                    >
+                      {loadUpdate ? (
+                        <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
+                      ) : (
+                        <Pencil className="mr-2 h-4 w-4" />
+                      )}
+                      Update
+                    </Button>
+
+                    <Button 
+                      variant="outline" 
+                      disabled={loadDelete} 
+                      onClick={() => handleDelete(book._id)}
+                    >
+                      {loadDelete ? (
+                        <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
+                      ) : (
+                        <Trash className="mr-2 h-4 w-4" />
+                      )}
+                      Delete
+                    </Button>
+
                     </CardFooter>
                   </Card>
                 ))}
