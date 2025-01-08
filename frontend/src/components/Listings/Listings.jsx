@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/pagination";
-import { Loader2, Search, BookOpen } from 'lucide-react';
+import { Loader2, Search, BookOpen, LoaderCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,6 @@ export default function Listings() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filterAvailable, setFilterAvailable] = useState(false);
-
   useEffect(() => {
     fetchBooks();
   }, [currentPage, filterAvailable]);
@@ -134,8 +133,11 @@ function BookCard({ book }) {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const [loadConfirm, setLoadConfirm] = useState(false)
+
   const handleBorrow = async () => {
     try {
+      setLoadConfirm(true)
       await axios.post(`/api/v1/transaction/borrow`,{bookId: book._id}, {withCredentials:true});
       toast({
         title: "Success",
@@ -149,6 +151,8 @@ function BookCard({ book }) {
         description: error.response.data.message,
         variant: "destructive",
       });
+    } finally{
+      setLoadConfirm(false)
     }
   };
 
@@ -241,7 +245,9 @@ function BookCard({ book }) {
                       <Button variant="outline" onClick={() => setIsOpen(false)}>
                         Cancel
                       </Button>
-                      <Button onClick={handleBorrow}>Confirm Borrow</Button>
+                      <Button onClick={handleBorrow} disabled={loadConfirm}>
+                        {loadConfirm? <LoaderCircle className='animate-spin'/> :'Confirm Borrow' }
+                      </Button>
                     </DialogFooter>
                   </div>
                 </div>
