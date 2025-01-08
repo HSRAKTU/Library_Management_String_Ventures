@@ -36,7 +36,7 @@ export default function AdminDashboard() {
 
   const [loadAdd, setLoadAdd] = useState(false)
   const [loadUpdate, setLoadUpdate] = useState(false)
-  const [loadDelete, setLoadDelete] = useState(false)
+  const [loadDelete, setLoadDelete] = useState({})
 
   const [newBook, setNewBook] = useState({
     title: '',
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
 
   const handleDelete = async (bookId) => {
     try {
-      setLoadDelete(true)
+      setLoadDelete((prev) => ({ ...prev, [bookId]: true }));
       await axios.delete(`/api/v1/book/delete/${bookId}`, { withCredentials: true });
       toast({
         title: "Success",
@@ -96,11 +96,11 @@ export default function AdminDashboard() {
         description: error.response.data.message,
         variant: "destructive",
       });
-    } finally{
-      setLoadDelete(false)
+    } finally {
+      setLoadDelete((prev) => ({ ...prev, [bookId]: false }));
     }
   };
-
+  
   const getAdminDashboard = async () => {
     try {
       const response = await axios.get(`/api/v1/book/getStats`,{withCredentials: true})
@@ -324,64 +324,58 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {books.map((book, index) => (
-                  <Card
-                    key={book._id}
-                    className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 animate-fade-up"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <CardHeader className="p-0">
-                      <div className="aspect-w-2 aspect-h-3 w-full overflow-hidden">
-                        <img
-                          src={book.thumbnail}
-                          alt={book.title}
-                          className="object-cover object-center w-full h-full transition-transform duration-300 ease-in-out hover:scale-105"
-                        />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow p-4">
-                      <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
-                        {book.title}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground mb-2">by {book.author}</p>
-                      <p className="text-sm line-clamp-3">{book.description}</p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        <span className='font-bold'>Year:</span> {book.publicationYear}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        <span className='font-bold'>Quantity:</span> {book.quantity}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="flex justify-between items-center p-4 bg-muted/50">
+              {books.map((book, index) => (
+                <Card
+                  key={book._id}
+                  className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 animate-fade-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <CardHeader className="p-0">
+                    <div className="aspect-w-2 aspect-h-3 w-full overflow-hidden">
+                      <img
+                        src={book.thumbnail}
+                        alt={book.title}
+                        className="object-cover object-center w-full h-full transition-transform duration-300 ease-in-out hover:scale-105"
+                      />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-grow p-4">
+                    <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
+                      {book.title}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground mb-2">by {book.author}</p>
+                    <p className="text-sm line-clamp-3">{book.description}</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      <span className='font-bold'>Year:</span> {book.publicationYear}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      <span className='font-bold'>Quantity:</span> {book.quantity}
+                    </p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center p-4 bg-muted/50">
                     <Button 
                       variant="outline" 
                       disabled={loadUpdate} 
                       onClick={() => handleUpdate(book)}
                     >
-                      {loadUpdate ? (
-                        <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
-                      ) : (
-                        <Pencil className="mr-2 h-4 w-4" />
-                      )}
-                      Update
+                    <Pencil className="mr-2 h-4 w-4" /> Update
                     </Button>
 
                     <Button 
                       variant="outline" 
-                      disabled={loadDelete} 
+                      disabled={loadDelete[book._id]} 
                       onClick={() => handleDelete(book._id)}
                     >
-                      {loadDelete ? (
+                      {loadDelete[book._id] ? (
                         <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
                       ) : (
                         <Trash className="mr-2 h-4 w-4" />
                       )}
                       Delete
                     </Button>
-
-                    </CardFooter>
-                  </Card>
-                ))}
+                  </CardFooter>
+                </Card>
+              ))}
               </div>
 
               <Pagination
@@ -400,48 +394,48 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent>
                   <div className="flex flex-col gap-4">
-      <Card className="border rounded-lg shadow-md bg-card">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-primary">
-            Book Collection Size
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-2xl font-bold text-muted-foreground">
-            {stats.totalBooks}
-          </p>
-          <p className="text-sm text-muted-foreground">Unique titles in the library</p>
-        </CardContent>
-      </Card>
+                    <Card className="border rounded-lg shadow-md bg-card">
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold text-primary">
+                          Book Collection Size
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-2xl font-bold text-muted-foreground">
+                          {stats.totalBooks}
+                        </p>
+                        <p className="text-sm text-muted-foreground">Unique titles in the library</p>
+                      </CardContent>
+                    </Card>
 
-      <Card className="border rounded-lg shadow-md bg-card">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-primary">
-            Currently Borrowed
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-2xl font-bold text-muted-foreground">
-            {stats.currentlyBorrowedBooks}
-          </p>
-          <p className="text-sm text-muted-foreground">Books currently with users</p>
-        </CardContent>
-      </Card>
+                    <Card className="border rounded-lg shadow-md bg-card">
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold text-primary">
+                          Currently Borrowed
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-2xl font-bold text-muted-foreground">
+                          {stats.currentlyBorrowedBooks}
+                        </p>
+                        <p className="text-sm text-muted-foreground">Books currently with users</p>
+                      </CardContent>
+                    </Card>
 
-      <Card className="border rounded-lg shadow-md bg-card">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-primary">
-            Total Available Books
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-2xl font-bold text-muted-foreground">
-            {stats.totalAvailableBooks}
-          </p>
-          <p className="text-sm text-muted-foreground">Books available in the library</p>
-        </CardContent>
-      </Card>
-    </div>
+                    <Card className="border rounded-lg shadow-md bg-card">
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold text-primary">
+                          Total Available Books
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-2xl font-bold text-muted-foreground">
+                          {stats.totalAvailableBooks}
+                        </p>
+                        <p className="text-sm text-muted-foreground">Books available in the library</p>
+                      </CardContent>
+                    </Card>
+                  </div>
                   </CardContent>
                 </Card>
               </div>
@@ -531,7 +525,13 @@ export default function AdminDashboard() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Save changes</Button>
+              <Button type="submit" disabled={loadUpdate}>
+                {loadUpdate ? (
+                  <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
+                ) : (
+                  'Save changes'
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
