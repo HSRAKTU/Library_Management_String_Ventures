@@ -63,9 +63,9 @@ export default function AppWrapper() {
   }, [dispatch]);
   
 
-  if (loading) {
-    return <div  className="flex items-center justify-center h-screen w-screen" ><LoaderCircle size={128} className='animate-spin'/></div>;
-  }
+  // if (loading) {
+  //   return <div  className="flex items-center justify-center h-screen w-screen" ><LoaderCircle size={128} className='animate-spin'/></div>;
+  // }
 
   return <RouterProvider router={router} />;
 }
